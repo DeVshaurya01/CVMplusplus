@@ -1,0 +1,11 @@
+// variables.cvm — let, reassignment, expressions with vars.
+
+let x = 10;
+let y = 20;
+print x + y;        // 30
+
+x = x * 2;
+print x;            // 20
+
+let z = x + y;
+print z;            // 40

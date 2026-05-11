@@ -1,0 +1,25 @@
+// fizzbuzz.cvm — classic FizzBuzz adapted to int-only output.
+//   prints  -1 for Fizz, -2 for Buzz, -3 for FizzBuzz, else the number.
+// (Strings come in v2.)
+
+let i = 1;
+while (i < 16) {
+    let mod3 = i - (i / 3) * 3;
+    let mod5 = i - (i / 5) * 5;
+
+    if (mod3 == 0) {
+        if (mod5 == 0) {
+            print -3;       // FizzBuzz
+        } else {
+            print -1;       // Fizz
+        }
+    } else {
+        if (mod5 == 0) {
+            print -2;       // Buzz
+        } else {
+            print i;
+        }
+    }
+
+    i = i + 1;
+}

@@ -1,0 +1,18 @@
+// guess.cvm — uses `input` to read an integer and `if/else` to compare.
+// Run interactively:  ./build/cvm examples/guess.cvm
+
+let secret = 42;
+let guess = 0;
+
+print 0;            // prompt sentinel (prints 0 so we can see the program is waiting)
+input guess;
+
+if (guess == secret) {
+    print 1;        // correct
+} else {
+    if (guess < secret) {
+        print -1;   // too low
+    } else {
+        print 2;    // too high
+    }
+}

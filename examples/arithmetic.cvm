@@ -1,0 +1,8 @@
+// arithmetic.cvm — Day 1 smoke test.
+// Demonstrates literals, precedence, and print.
+
+print 1 + 2;           // 3
+print 10 - 3 * 2;      // 4
+print (10 - 3) * 2;    // 14
+print 100 / 4 / 5;     // 5
+print -7 + 10;         // 3
