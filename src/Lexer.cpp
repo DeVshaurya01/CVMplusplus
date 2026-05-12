@@ -1,8 +1,5 @@
 // =============================================================================
 //  Lexer.cpp
-//
-//  Scans raw .cvm source into a flat token vector. Single forward pass,
-//  one char of lookahead (two for `//` comments).
 // =============================================================================
 
 #include "Lexer.h"
@@ -18,14 +15,19 @@ namespace {
 
 const std::unordered_map<std::string, TokenType>& keywords() {
     static const std::unordered_map<std::string, TokenType> kw{
-        {"let",   TokenType::LET},
-        {"if",    TokenType::IF},
-        {"else",  TokenType::ELSE},
-        {"while", TokenType::WHILE},
-        {"print", TokenType::PRINT},
-        {"input", TokenType::INPUT},
-        {"true",  TokenType::TRUE},
-        {"false", TokenType::FALSE},
+        {"let",    TokenType::LET},
+        {"fn",     TokenType::FN},
+        {"return", TokenType::RETURN},
+        {"if",     TokenType::IF},
+        {"else",   TokenType::ELSE},
+        {"while",  TokenType::WHILE},
+        {"print",  TokenType::PRINT},
+        {"input",  TokenType::INPUT},
+        {"true",   TokenType::TRUE},
+        {"false",  TokenType::FALSE},
+        {"len",    TokenType::LEN},
+        {"has",    TokenType::HAS},
+        {"null",   TokenType::NULL_KW},
     };
     return kw;
 }
@@ -103,6 +105,18 @@ void Lexer::scanIdentifier(std::vector<Token>& out, std::size_t start) {
     out.push_back({type, std::move(lex), line_, 0});
 }
 
+void Lexer::scanString(std::vector<Token>& out) {
+    std::size_t start = pos_;
+    while (!isAtEnd() && peek() != '"') {
+        if (peek() == '\n') line_++;
+        advance();
+    }
+    if (isAtEnd()) throw CompileError(line_, "Unterminated string.");
+    advance(); // closing "
+    std::string value = source_.substr(start, pos_ - start - 1);
+    out.push_back({TokenType::STRING, std::move(value), line_, 0});
+}
+
 void Lexer::scanToken(std::vector<Token>& out) {
     std::size_t start = pos_;
     char c = advance();
@@ -112,20 +126,29 @@ void Lexer::scanToken(std::vector<Token>& out) {
     };
 
     switch (c) {
-        case '(': push(TokenType::LPAREN, "("); return;
-        case ')': push(TokenType::RPAREN, ")"); return;
-        case '{': push(TokenType::LBRACE, "{"); return;
-        case '}': push(TokenType::RBRACE, "}"); return;
-        case ';': push(TokenType::SEMI,   ";"); return;
-        case '+': push(TokenType::PLUS,   "+"); return;
-        case '-': push(TokenType::MINUS,  "-"); return;
-        case '*': push(TokenType::STAR,   "*"); return;
-        case '/': push(TokenType::SLASH,  "/"); return;
-        case '<': push(TokenType::LT,     "<"); return;
+        case '(': push(TokenType::LPAREN,   "("); return;
+        case ')': push(TokenType::RPAREN,   ")"); return;
+        case '{': push(TokenType::LBRACE,   "{"); return;
+        case '}': push(TokenType::RBRACE,   "}"); return;
+        case '[': push(TokenType::LBRACKET, "["); return;
+        case ']': push(TokenType::RBRACKET, "]"); return;
+        case ':': push(TokenType::COLON,    ":"); return;
+        case ',': push(TokenType::COMMA,    ","); return;
+        case ';': push(TokenType::SEMI,     ";"); return;
+        case '+': push(TokenType::PLUS,     "+"); return;
+        case '-': push(TokenType::MINUS,    "-"); return;
+        case '*': push(TokenType::STAR,     "*"); return;
+        case '/': push(TokenType::SLASH,    "/"); return;
+        case '<': push(TokenType::LT,       "<"); return;
+        case '!':
+            if (match('=')) push(TokenType::BANG_EQ, "!=");
+            else            push(TokenType::BANG,    "!");
+            return;
         case '=':
             if (match('=')) push(TokenType::EQ_EQ, "==");
             else            push(TokenType::EQ,    "=");
             return;
+        case '"': scanString(out); return;
         default: break;
     }
 
@@ -133,12 +156,10 @@ void Lexer::scanToken(std::vector<Token>& out) {
         scanNumber(out, start);
         return;
     }
-
     if (isAlpha(c)) {
         scanIdentifier(out, start);
         return;
     }
-
     throw CompileError(line_, std::string("unexpected character '") + c + "'");
 }
 

@@ -1,0 +1,55 @@
+// Inputs to build the tree
+let values = [1, 4, 6, 2, 9, 10];
+let root = null;
+
+let i = 0;
+let n = len(values);
+
+print "--- Building BST ---";
+
+while (i < n) {
+    let v = values[i];
+    print "Inserting:";
+    print v;
+    
+    if (root == null) {
+        // First value becomes the root
+        root = { "val": v, "left": null, "right": null };
+    } else {
+        let curr = root;
+        let inserted = false;
+        
+        // Loop down the tree until we find an empty spot
+        while (inserted == false) {
+            if (v < curr["val"]) {
+                if (curr["left"] == null) {
+                    curr["left"] = { "val": v, "left": null, "right": null };
+                    inserted = true;
+                } else {
+                    curr = curr["left"];
+                }
+            } else {
+                if (curr["right"] == null) {
+                    curr["right"] = { "val": v, "left": null, "right": null };
+                    inserted = true;
+                } else {
+                    curr = curr["right"];
+                }
+            }
+        }
+    }
+    i = i + 1;
+}
+
+print "--- Verification ---";
+print "Root Value (should be 1):";
+print root["val"];
+
+print "Root->Right (should be 4):";
+print root["right"]["val"];
+
+print "Root->Right->Left (should be 2):";
+print root["right"]["left"]["val"];
+
+print "Root->Right->Right (should be 6):";
+print root["right"]["right"]["val"];

@@ -2,9 +2,6 @@
 
 // =============================================================================
 //  Lexer.h
-//
-//  Consumes a source string and produces a vector of Tokens.
-//  Throws CompileError on unknown characters.
 // =============================================================================
 
 #include "Token.h"
@@ -16,8 +13,6 @@ namespace cvm {
 class Lexer {
 public:
     explicit Lexer(std::string source);
-
-    // Run the scanner to completion and return all tokens, ending with EOF.
     std::vector<Token> scanAll();
 
 private:
@@ -28,9 +23,10 @@ private:
     bool match(char expected);
 
     void skipWhitespaceAndComments();
-    void scanToken(std::vector<Token>& out);
     void scanNumber(std::vector<Token>& out, std::size_t start);
     void scanIdentifier(std::vector<Token>& out, std::size_t start);
+    void scanString(std::vector<Token>& out);
+    void scanToken(std::vector<Token>& out);
 
     std::string source_;
     std::size_t pos_  = 0;

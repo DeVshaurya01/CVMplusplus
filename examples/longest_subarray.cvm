@@ -1,0 +1,46 @@
+// Longest Subarray With Sum K
+// Given an array of integers and an integer k, 
+// find the length of the longest subarray whose sum equals k.
+
+let nums = [1, -1, 5, -2, 3];
+let k = 3;
+
+let prefix_sum = 0;
+let max_len = 0;
+
+// Use a map to store the earliest index of each prefix sum.
+// Key: prefix_sum, Value: index
+let earliest_index = { 0: -1 };
+
+let i = 0;
+let n = len(nums);
+
+print "--- Longest Subarray Sum K ---";
+print "Array:";
+print nums;
+print "K:";
+print k;
+
+while (i < n) {
+    prefix_sum = prefix_sum + nums[i];
+    
+    let target = prefix_sum - k;
+    
+    // Check if we've seen this target prefix sum before
+    if (earliest_index has target) {
+        let current_len = i - earliest_index[target];
+        if (max_len < current_len) {
+            max_len = current_len;
+        }
+    }
+
+    // Only store the first occurrence of a prefix sum to maximize subarray length
+    if (!(earliest_index has prefix_sum)) {
+        earliest_index[prefix_sum] = i;
+    }
+
+    i = i + 1;
+}
+
+print "Result (Max Length):";
+print max_len; // Expected: 4 (Subarray: [-1, 5, -2, 3])

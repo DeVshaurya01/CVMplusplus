@@ -1,0 +1,23 @@
+// Recursion Test: Factorial and Fibonacci
+
+fn factorial(n) {
+    if (n == 0) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+fn fib(n) {
+    if (n < 2) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+}
+
+print "--- Recursion Test ---";
+
+print "Factorial of 5 (expected 120):";
+print factorial(5);
+
+print "Fibonacci of 7 (expected 13):";
+print fib(7);

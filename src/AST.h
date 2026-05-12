@@ -2,24 +2,16 @@
 
 // =============================================================================
 //  AST.h
-//
-//  Abstract Syntax Tree node definitions. We use std::variant for the
-//  algebraic data type so traversal is std::visit-friendly and nodes are
-//  cache-friendly.
-//
-//  Two top-level variants: Expr and Stmt. Children are held via
-//  std::unique_ptr<Expr> / std::unique_ptr<Stmt>.
 // =============================================================================
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
 namespace cvm {
 
-// Forward-declare so unique_ptr<Expr>/unique_ptr<Stmt> can appear in
-// node bodies before the variant aliases are defined.
 struct Expr;
 struct Stmt;
 using ExprPtr = std::unique_ptr<Expr>;
@@ -27,8 +19,11 @@ using StmtPtr = std::unique_ptr<Stmt>;
 
 // ----- Expression nodes -----
 struct LiteralExpr {
-    long long value;     // int literal value, or 1/0 for bool
-    bool      isBool;
+    enum class Kind { Int, Bool, String, Null };
+    Kind        kind;
+    long long   intValue    = 0;
+    bool        boolValue   = false;
+    std::string stringValue;
 };
 
 struct VarExpr {
@@ -37,13 +32,13 @@ struct VarExpr {
 };
 
 struct UnaryExpr {
-    enum class Op { Neg };
+    enum class Op { Neg, Not };
     Op      op;
     ExprPtr operand;
 };
 
 struct BinaryExpr {
-    enum class Op { Add, Sub, Mul, Div, Eq, Lt };
+    enum class Op { Add, Sub, Mul, Div, Eq, Ne, Lt };
     Op      op;
     ExprPtr lhs;
     ExprPtr rhs;
@@ -55,8 +50,62 @@ struct AssignExpr {
     int         line;
 };
 
+struct ArrayExpr {
+    std::vector<ExprPtr> elements;
+    int                  line;
+};
+
+struct MapExpr {
+    std::vector<ExprPtr> keys;
+    std::vector<ExprPtr> values;
+    int                  line;
+};
+
+struct IndexGetExpr {
+    ExprPtr collection;
+    ExprPtr index;
+    int     line;
+};
+
+struct IndexSetExpr {
+    ExprPtr collection;
+    ExprPtr index;
+    ExprPtr value;
+    int     line;
+};
+
+struct LenExpr {
+    ExprPtr collection;
+    int     line;
+};
+
+struct HasExpr {
+    ExprPtr collection;
+    ExprPtr key;
+    int     line;
+};
+
+struct CallExpr {
+    ExprPtr              callee;
+    std::vector<ExprPtr> args;
+    int                  line;
+};
+
 struct Expr {
-    std::variant<LiteralExpr, VarExpr, UnaryExpr, BinaryExpr, AssignExpr> node;
+    std::variant<
+        LiteralExpr,
+        VarExpr,
+        UnaryExpr,
+        BinaryExpr,
+        AssignExpr,
+        ArrayExpr,
+        MapExpr,
+        IndexGetExpr,
+        IndexSetExpr,
+        LenExpr,
+        HasExpr,
+        CallExpr
+    > node;
 };
 
 // ----- Statement nodes -----
@@ -78,7 +127,7 @@ struct InputStmt {
 struct IfStmt {
     ExprPtr              cond;
     std::vector<StmtPtr> thenBlk;
-    std::vector<StmtPtr> elseBlk;   // empty if no else
+    std::vector<StmtPtr> elseBlk;
 };
 
 struct WhileStmt {
@@ -90,12 +139,27 @@ struct BlockStmt {
     std::vector<StmtPtr> stmts;
 };
 
+struct FnStmt {
+    std::string              name;
+    std::vector<std::string> params;
+    std::vector<StmtPtr>     body;
+    int                      line;
+};
+
+struct ReturnStmt {
+    ExprPtr value; // can be nullptr for 'return;'
+    int     line;
+};
+
 struct ExprStmt {
     ExprPtr expr;
 };
 
 struct Stmt {
-    std::variant<LetStmt, PrintStmt, InputStmt, IfStmt, WhileStmt, BlockStmt, ExprStmt> node;
+    std::variant<
+        LetStmt, PrintStmt, InputStmt, IfStmt, WhileStmt, 
+        BlockStmt, FnStmt, ReturnStmt, ExprStmt
+    > node;
 };
 
 } // namespace cvm

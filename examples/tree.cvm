@@ -1,0 +1,35 @@
+// Tree Data Structure Example
+// This demonstrates using Maps as "Objects" and 'null' as pointers.
+
+let left_leaf = { "val": 5, "left": null, "right": null };
+let right_leaf = { "val": 15, "left": null, "right": null };
+let root = { "val": 10, "left": left_leaf, "right": right_leaf };
+
+print "--- Tree Structure ---";
+print "Root:";
+print root["val"];
+
+print "Left Child:";
+print root["left"]["val"];
+
+print "Right Child:";
+print root["right"]["val"];
+
+print "--- Null Pointer Check ---";
+if (root["left"] == null) {
+    print "Left is null";
+} else {
+    print "Left is valid";
+}
+
+if (root["left"]["left"] == null) {
+    print "Left-Left is null (correct)";
+} else {
+    print "Left-Left is not null";
+}
+
+// In-place mutation (Pointer behavior)
+print "--- Mutating Left Leaf ---";
+left_leaf["val"] = 99;
+print "New Root->Left value (via pointer):";
+print root["left"]["val"]; // Should be 99 because left_leaf and root["left"] point to the same object

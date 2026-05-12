@@ -1,0 +1,29 @@
+// Nested Data Structures Test
+// Verifies complex maps of arrays and arrays of maps
+
+let database = {
+    "users": [
+        { "id": 1, "name": "Alice", "tags": ["admin", "dev"] },
+        { "id": 2, "name": "Bob",   "tags": ["user"] }
+    ],
+    "config": {
+        "version": 1,
+        "enabled": true
+    }
+};
+
+print "--- Complex Data Test ---";
+
+print "User 1 Name:";
+print database["users"][0]["name"];
+
+print "User 1 Second Tag:";
+print database["users"][0]["tags"][1];
+
+print "Config Version:";
+print database["config"]["version"];
+
+// Update deep value
+database["users"][1]["tags"] = ["user", "beta"];
+print "Updated User 2 Tags:";
+print database["users"][1]["tags"];

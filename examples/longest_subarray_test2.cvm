@@ -1,0 +1,22 @@
+// Longest Subarray With Sum K - Case 2
+let nums = [10, 5, 2, 7, 1, 9];
+let k = 15;
+
+let prefix_sum = 0;
+let max_len = 0;
+let earliest_index = { 0: -1 };
+let i = 0;
+let n = len(nums);
+
+while (i < n) {
+    prefix_sum = prefix_sum + nums[i];
+    let target = prefix_sum - k;
+    if (earliest_index has target) {
+        let current_len = i - earliest_index[target];
+        if (max_len < current_len) { max_len = current_len; }
+    }
+    if (earliest_index has prefix_sum) { } else { earliest_index[prefix_sum] = i; }
+    i = i + 1;
+}
+
+print max_len; // Expected: 4 (subarray [5, 2, 7, 1])

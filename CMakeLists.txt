@@ -23,6 +23,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Sources
 # -----------------------------------------------------------------------------
 set(CVM_SOURCES
+    src/Value.cpp
     src/Lexer.cpp
     src/Parser.cpp
     src/Compiler.cpp

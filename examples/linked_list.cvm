@@ -1,0 +1,28 @@
+// Linked List Test
+// Demonstrates dynamic object linking and null pointers
+
+fn createNode(val, next) {
+    return { "val": val, "next": next };
+}
+
+// Build list: 10 -> 20 -> 30 -> null
+let list = createNode(10, createNode(20, createNode(30, null)));
+
+print "--- Linked List Test ---";
+
+// Traverse and print
+let curr = list;
+while (curr != null) {
+    print "Node value:";
+    print curr["val"];
+    curr = curr["next"];
+}
+
+// Mutation test
+print "Appending 40 to the head...";
+list = createNode(40, list);
+
+print "New head:";
+print list["val"];
+print "Second node:";
+print list["next"]["val"];

@@ -2,40 +2,42 @@
 
 // =============================================================================
 //  VM.h
-//
-//  Stack-based bytecode interpreter. Holds globals across run() calls so the
-//  REPL can build up state interactively.
 // =============================================================================
 
 #include "Chunk.h"
 #include "Value.h"
-#include <string>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 namespace cvm {
 
+// A CallFrame represents a single active function call.
+struct CallFrame {
+    std::shared_ptr<ObjFunction> function;
+    std::size_t                  ip;
+    std::size_t                  stackBase; // index into the VM stack where this frame starts
+};
+
 class VM {
 public:
-    // Execute a chunk to completion (until OP_HALT or end of code).
-    void run(const Chunk& chunk);
-
-    // Reset only the value stack (globals are preserved across REPL turns).
+    void run(const Chunk& mainChunk);
     void resetStack();
 
 private:
-    // TODO(vm):
-    //   void push(Value v);
-    //   Value pop();
-    //   Value peek(std::size_t depth = 0) const;
-    //
-    //   // Operand readers (advance instruction pointer)
-    //   std::uint8_t  readByte(const Chunk& c, std::size_t& ip);
-    //   std::uint16_t readShort(const Chunk& c, std::size_t& ip);
-    //   std::int32_t  readInt32(const Chunk& c, std::size_t& ip);
+    std::vector<Value>     stack_;
+    std::unordered_map<std::string, Value> globals_;
+    
+    // Call stack
+    std::vector<CallFrame> frames_;
 
-    std::vector<Value>                       stack_;
-    std::unordered_map<std::string, Value>   globals_;
+    void push(Value v) { stack_.push_back(std::move(v)); }
+    Value pop() {
+        if (stack_.empty()) throw std::runtime_error("stack underflow");
+        Value v = std::move(stack_.back());
+        stack_.pop_back();
+        return v;
+    }
 };
 
 } // namespace cvm

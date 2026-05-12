@@ -1,0 +1,63 @@
+let values = [2, 5, 3, 7, 9, 10, 8];
+
+let target1 = 8;
+let target2 = 3;
+let target3 = 15;
+
+let i = 0;
+let n = len(values);
+let root = null;
+
+print "--- Building BST ---";
+while (i < n) {
+    let v = values[i];
+    if (root == null) {
+        root = { "val": v, "left": null, "right": null };
+    } else {
+        let curr = root;
+        let inserted = false;
+        while (inserted == false) {
+            if (v < curr["val"]) {
+                if (curr["left"] == null) {
+                    curr["left"] = { "val": v, "left": null, "right": null };
+                    inserted = true;
+                } else {
+                    curr = curr["left"];
+                }
+            } else {
+                if (curr["right"] == null) {
+                    curr["right"] = { "val": v, "left": null, "right": null };
+                    inserted = true;
+                } else {
+                    curr = curr["right"];
+                }
+            }
+        }
+    }
+    i = i + 1;
+}
+
+// Recursive Search Function
+fn search(node, target) {
+    if (node == null) {
+        return false;
+    }
+    if (node["val"] == target) {
+        return true;
+    }
+    if (target < node["val"]) {
+        return search(node["left"], target);
+    } else {
+        return search(node["right"], target);
+    }
+}
+
+print "--- Searching Targets ---";
+print "Target 8:";
+print search(root, target1); // true
+
+print "Target 3:";
+print search(root, target2); // true
+
+print "Target 15:";
+print search(root, target3); // false
