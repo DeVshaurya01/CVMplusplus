@@ -1,0 +1,17 @@
+// fibonacci.cvm — nth Fibonacci number via iterative two-variable swap.
+// Classic CF warm-up: F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2).
+// Computes F(15) = 610.
+
+let n = 15;
+let a = 0;
+let b = 1;
+let i = 0;
+
+while (i < n) {
+    let t = a + b;
+    a = b;
+    b = t;
+    i = i + 1;
+}
+
+print a;

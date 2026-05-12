@@ -1,0 +1,27 @@
+// count_primes.cvm — count primes <= N by trial division on each candidate.
+// CF "warmup" / Project Euler #7 territory.
+//
+// N = 30. Primes: 2 3 5 7 11 13 17 19 23 29 → 10.
+
+let N = 30;
+let count = 0;
+let n = 2;
+
+while (n < N + 1) {
+    let i = 2;
+    let isPrime = 1;
+    while (i * i < n + 1) {
+        let r = n - (n / i) * i;
+        if (r == 0) {
+            isPrime = 0;
+            i = n;
+        }
+        i = i + 1;
+    }
+    if (isPrime == 1) {
+        count = count + 1;
+    }
+    n = n + 1;
+}
+
+print count;

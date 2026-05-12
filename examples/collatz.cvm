@@ -1,0 +1,19 @@
+// collatz.cvm — Collatz (3n+1) sequence length.
+// Repeatedly: if n even → n/2, else → 3n+1. Stop at n == 1. Count steps.
+// Starting at 27 takes 111 steps to reach 1.
+
+let n = 27;
+let steps = 0;
+
+while (1 < n) {
+    let q = n / 2;
+    let r = n - q * 2;           // n mod 2
+    if (r == 0) {
+        n = q;
+    } else {
+        n = 3 * n + 1;
+    }
+    steps = steps + 1;
+}
+
+print steps;

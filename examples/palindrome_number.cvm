@@ -1,0 +1,20 @@
+// palindrome_number.cvm — is the integer a palindrome?
+// Reverse the digits and compare. Prints 1 if palindrome, 0 otherwise.
+// 12321 → 1.
+
+let n = 12321;
+let original = n;
+let rev = 0;
+
+while (0 < n) {
+    let q = n / 10;
+    let d = n - q * 10;
+    rev = rev * 10 + d;
+    n = q;
+}
+
+if (rev == original) {
+    print 1;
+} else {
+    print 0;
+}

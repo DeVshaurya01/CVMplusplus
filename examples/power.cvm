@@ -1,0 +1,19 @@
+// power.cvm — fast exponentiation (binary exponentiation).
+// O(log b) instead of O(b). Standard CF technique.
+// Computes 3^13 = 1594323.
+
+let a = 3;
+let b = 13;
+let result = 1;
+
+while (0 < b) {
+    let half = b / 2;
+    let bit  = b - half * 2;     // b mod 2
+    if (bit == 1) {
+        result = result * a;
+    }
+    a = a * a;
+    b = half;
+}
+
+print result;

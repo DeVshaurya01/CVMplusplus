@@ -1,0 +1,28 @@
+// nth_prime.cvm — find the Nth prime number (1-indexed).
+// Walk integers from 2 upward, primality-test each, count.
+// 10th prime = 29.
+
+let target = 10;
+let found = 0;
+let n = 1;
+let answer = 0;
+
+while (found < target) {
+    n = n + 1;
+    let i = 2;
+    let isPrime = 1;
+    while (i * i < n + 1) {
+        let r = n - (n / i) * i;
+        if (r == 0) {
+            isPrime = 0;
+            i = n;
+        }
+        i = i + 1;
+    }
+    if (isPrime == 1) {
+        found = found + 1;
+        answer = n;
+    }
+}
+
+print answer;

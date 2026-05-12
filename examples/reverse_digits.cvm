@@ -1,0 +1,14 @@
+// reverse_digits.cvm — reverse the digits of an integer.
+// reverse(12345) = 54321.
+
+let n = 12345;
+let rev = 0;
+
+while (0 < n) {
+    let q = n / 10;
+    let d = n - q * 10;          // n mod 10
+    rev = rev * 10 + d;
+    n = q;
+}
+
+print rev;

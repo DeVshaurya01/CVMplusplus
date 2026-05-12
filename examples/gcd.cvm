@@ -1,0 +1,18 @@
+// gcd.cvm — Euclidean algorithm. CF staple.
+//   gcd(a, b) = gcd(b, a mod b) until b == 0.
+//
+// CVM++ has no `%` operator, so we synthesize mod as `a - (a/b)*b`
+// (integer division truncates toward zero, which is fine for positives).
+//
+// Computes gcd(252, 105) = 21.
+
+let a = 252;
+let b = 105;
+
+while (0 < b) {
+    let t = a - (a / b) * b;
+    a = b;
+    b = t;
+}
+
+print a;

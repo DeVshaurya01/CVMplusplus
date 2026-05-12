@@ -1,0 +1,24 @@
+// is_prime.cvm — primality test by trial division up to sqrt(n).
+// We don't have sqrt, so we loop while i*i <= n (written as i*i < n+1).
+// Prints 1 if prime, 0 if composite.
+//
+// Tests n = 97 (prime). Expected: 1.
+
+let n = 97;
+let i = 2;
+let isPrime = 1;
+
+if (n < 2) {
+    isPrime = 0;
+}
+
+while (i * i < n + 1) {
+    let r = n - (n / i) * i;     // n mod i
+    if (r == 0) {
+        isPrime = 0;
+        i = n;                   // break: force loop to exit
+    }
+    i = i + 1;
+}
+
+print isPrime;

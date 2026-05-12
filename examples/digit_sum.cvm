@@ -1,0 +1,15 @@
+// digit_sum.cvm — sum the decimal digits of an integer.
+// Repeatedly take n mod 10 (synthesized) and divide by 10.
+// digitSum(98765) = 9 + 8 + 7 + 6 + 5 = 35.
+
+let n = 98765;
+let sum = 0;
+
+while (0 < n) {
+    let q = n / 10;
+    let d = n - q * 10;          // n mod 10
+    sum = sum + d;
+    n = q;
+}
+
+print sum;
