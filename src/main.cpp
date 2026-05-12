@@ -1,32 +1,17 @@
 // =============================================================================
 //  main.cpp  —  CLI entry point.
 //
-//  Owner: <fill in>
-//  Branch: feat/debug-cli
-//
-//  Two modes:
-//      cvm                    → REPL
-//      cvm path/to/script.cvm → file runner
+//  Modes:
+//      cvm                    -> REPL
+//      cvm path/to/script.cvm -> file runner
 //
 //  Optional flags:
-//      --debug                → print tokens, AST, bytecode before running
-//
-//  Pipeline glue:
-//      std::string src = readFile(path);    // or one line from stdin in REPL
-//      Lexer lx(src);
-//      auto tokens = lx.scanAll();
-//      Parser p(std::move(tokens));
-//      auto program = p.parseProgram();
-//      Compiler c;
-//      Chunk chunk = c.compile(program);
-//      vm.run(chunk);                       // vm outlives the REPL loop
-//
-//  In REPL mode, wrap each iteration in try/catch so a parse/runtime error
-//  doesn't kill the process. Globals survive because the VM instance does.
+//      --debug / -d           -> print tokens, AST, bytecode before running
 // =============================================================================
 
 #include "Compiler.h"
 #include "Debug.h"
+#include "Error.h"
 #include "Lexer.h"
 #include "Parser.h"
 #include "VM.h"
@@ -62,7 +47,6 @@ Args parseArgs(int argc, char** argv) {
     return a;
 }
 
-[[maybe_unused]]
 std::string readFile(const std::string& path) {
     std::ifstream f(path);
     if (!f) {
@@ -74,44 +58,50 @@ std::string readFile(const std::string& path) {
     return ss.str();
 }
 
-void runRepl([[maybe_unused]] bool debug) {
-    std::cout << "CVM++ REPL — type Ctrl-D to exit.\n";
-    // TODO(debug-cli):
-    //   cvm::VM vm;
-    //   std::string line;
-    //   while (true) {
-    //       std::cout << "> " << std::flush;
-    //       if (!std::getline(std::cin, line)) break;
-    //       if (line.empty()) continue;
-    //       try {
-    //           cvm::Lexer lx(line);
-    //           auto toks = lx.scanAll();
-    //           cvm::Parser p(std::move(toks));
-    //           auto prog = p.parseProgram();
-    //           cvm::Compiler c;
-    //           auto chunk = c.compile(prog);
-    //           if (debug) cvm::debug::disassemble(chunk, std::cerr, "<repl>");
-    //           vm.run(chunk);
-    //       } catch (const std::exception& e) {
-    //           std::cerr << "error: " << e.what() << "\n";
-    //       }
-    //   }
+// Compile and run a source string against an existing VM. Throws on error.
+void execute(const std::string& src, cvm::VM& vm, bool debug, const char* label) {
+    cvm::Lexer lx(src);
+    auto toks = lx.scanAll();
+    if (debug) cvm::debug::printTokens(toks, std::cerr);
+
+    cvm::Parser p(std::move(toks));
+    auto prog = p.parseProgram();
+    if (debug) cvm::debug::printAst(prog, std::cerr);
+
+    cvm::Compiler c;
+    auto chunk = c.compile(prog);
+    if (debug) cvm::debug::disassemble(chunk, std::cerr, label);
+
+    vm.run(chunk);
 }
 
-void runFile([[maybe_unused]] const std::string& path, [[maybe_unused]] bool debug) {
-    // TODO(debug-cli):
-    //   auto src = readFile(path);
-    //   cvm::Lexer lx(src);
-    //   auto toks = lx.scanAll();
-    //   if (debug) cvm::debug::printTokens(toks, std::cerr);
-    //   cvm::Parser p(std::move(toks));
-    //   auto prog = p.parseProgram();
-    //   if (debug) cvm::debug::printAst(prog, std::cerr);
-    //   cvm::Compiler c;
-    //   auto chunk = c.compile(prog);
-    //   if (debug) cvm::debug::disassemble(chunk, std::cerr, path.c_str());
-    //   cvm::VM vm;
-    //   vm.run(chunk);
+void runFile(const std::string& path, bool debug) {
+    std::string src = readFile(path);
+    cvm::VM vm;
+    execute(src, vm, debug, path.c_str());
+}
+
+void runRepl(bool debug) {
+    std::cout << "CVM++ REPL - Ctrl-D (or Ctrl-Z on Windows) to exit.\n";
+    cvm::VM vm;
+    std::string line;
+    while (true) {
+        std::cout << "> " << std::flush;
+        if (!std::getline(std::cin, line)) break;
+        if (line.empty()) continue;
+        try {
+            execute(line, vm, debug, "<repl>");
+        } catch (const cvm::CompileError& e) {
+            std::cerr << "compile error: " << e.what() << "\n";
+            vm.resetStack();
+        } catch (const cvm::RuntimeError& e) {
+            std::cerr << "runtime error: " << e.what() << "\n";
+            vm.resetStack();
+        } catch (const std::exception& e) {
+            std::cerr << "error: " << e.what() << "\n";
+            vm.resetStack();
+        }
+    }
 }
 
 } // namespace
@@ -124,6 +114,12 @@ int main(int argc, char** argv) {
         } else {
             runRepl(args.debug);
         }
+    } catch (const cvm::CompileError& e) {
+        std::cerr << "compile error: " << e.what() << "\n";
+        return 1;
+    } catch (const cvm::RuntimeError& e) {
+        std::cerr << "runtime error: " << e.what() << "\n";
+        return 1;
     } catch (const std::exception& e) {
         std::cerr << "fatal: " << e.what() << "\n";
         return 1;

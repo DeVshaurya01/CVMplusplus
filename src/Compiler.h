@@ -8,6 +8,7 @@
 
 #include "AST.h"
 #include "Chunk.h"
+#include <cstddef>
 #include <vector>
 
 namespace cvm {
@@ -18,16 +19,19 @@ public:
     Chunk compile(const std::vector<StmtPtr>& program);
 
 private:
-    // TODO(compiler): visitor methods
-    //   void compileStmt(const Stmt& s);
-    //   void compileExpr(const Expr& e);
-    //
-    //   // jump backpatching helpers
-    //   std::size_t emitJump(OpCode op);        // emits op + 2 placeholder bytes; returns patch addr
-    //   void        patchJump(std::size_t addr); // writes (current - addr - 2) into placeholder
-    //   void        emitLoop(std::size_t loopStart);
-    //
-    //   Chunk* chunk_; // current chunk being built
+    void compileStmt(const Stmt& s);
+    void compileExpr(const Expr& e);
+
+    void compileBlock(const std::vector<StmtPtr>& stmts);
+
+    // Emit a jump opcode + 2 placeholder bytes; returns address of the
+    // placeholder. Patch with patchJump() once the target is known.
+    std::size_t emitJump(OpCode op, int line);
+    void        patchJump(std::size_t addr);
+    void        emitLoop(std::size_t loopStart, int line);
+
+    Chunk* chunk_ = nullptr;
+    int    currentLine_ = 1;
 };
 
 } // namespace cvm

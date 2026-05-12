@@ -43,16 +43,39 @@ enum OpCode : std::uint8_t {
 };
 
 struct Chunk {
-    std::vector<std::uint8_t> code;     // bytecode
-    std::vector<std::string>  names;    // global-variable names (indexed by 1-byte operand)
-    std::vector<int>          lines;    // optional: source line per byte, for error messages
+    std::vector<std::uint8_t> code;    // bytecode
+    std::vector<std::string>  names;   // global-variable names (indexed by 1-byte operand)
+    std::vector<int>          lines;   // source line per byte, for error messages
 
-    // TODO(compiler): helpers
-    //   void writeByte(uint8_t b, int line);
-    //   void writeInt32(int32_t v, int line);
-    //   void writeShort(uint16_t v, int line);
-    //   uint8_t addName(const std::string& n);   // returns index, dedupes
-    //   std::size_t size() const { return code.size(); }
+    void writeByte(std::uint8_t b, int line) {
+        code.push_back(b);
+        lines.push_back(line);
+    }
+
+    void writeShort(std::uint16_t v, int line) {
+        writeByte(static_cast<std::uint8_t>(v & 0xFF), line);
+        writeByte(static_cast<std::uint8_t>((v >> 8) & 0xFF), line);
+    }
+
+    void writeInt32(std::int32_t v, int line) {
+        std::uint32_t u = static_cast<std::uint32_t>(v);
+        writeByte(static_cast<std::uint8_t>(u & 0xFF), line);
+        writeByte(static_cast<std::uint8_t>((u >> 8)  & 0xFF), line);
+        writeByte(static_cast<std::uint8_t>((u >> 16) & 0xFF), line);
+        writeByte(static_cast<std::uint8_t>((u >> 24) & 0xFF), line);
+    }
+
+    // Add a global name to the name table, deduping. Returns the index.
+    // Throws if the table would overflow the 1-byte operand.
+    std::uint8_t addName(const std::string& n) {
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            if (names[i] == n) return static_cast<std::uint8_t>(i);
+        }
+        names.push_back(n);
+        return static_cast<std::uint8_t>(names.size() - 1);
+    }
+
+    std::size_t size() const { return code.size(); }
 };
 
 } // namespace cvm

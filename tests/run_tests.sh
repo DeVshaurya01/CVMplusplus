@@ -16,6 +16,11 @@ PASS=0
 FAIL=0
 SKIP=0
 
+# On Windows the binary lands at cvm.exe; auto-detect if the bare name is missing.
+if [[ ! -x "$CVM" && -x "${CVM}.exe" ]]; then
+    CVM="${CVM}.exe"
+fi
+
 if [[ ! -x "$CVM" ]]; then
     echo "error: '$CVM' not found or not executable"
     echo "       build first:  cmake -B build && cmake --build build"
@@ -32,13 +37,15 @@ for script in "$EX_DIR"/*.cvm; do
         continue
     fi
 
-    actual=$("$CVM" "$script" 2>/dev/null)
-    if diff -u <(echo "$actual") "$expected" >/dev/null 2>&1; then
+    # Strip trailing \r so CRLF expected files match LF output.
+    actual=$("$CVM" "$script" 2>/dev/null | tr -d '\r')
+    expected_norm=$(tr -d '\r' < "$expected")
+    if diff -u <(echo "$actual") <(echo "$expected_norm") >/dev/null 2>&1; then
         printf "  PASS  %s\n" "$name"
         PASS=$((PASS+1))
     else
         printf "  FAIL  %s\n" "$name"
-        diff -u <(echo "$actual") "$expected" | sed 's/^/        /'
+        diff -u <(echo "$actual") <(echo "$expected_norm") | sed 's/^/        /'
         FAIL=$((FAIL+1))
     fi
 done

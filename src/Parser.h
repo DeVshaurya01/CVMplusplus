@@ -22,30 +22,34 @@ public:
     std::vector<StmtPtr> parseProgram();
 
 private:
-    // TODO(parser): rule functions, one per grammar production.
-    //   StmtPtr statement();
-    //   StmtPtr letStmt();
-    //   StmtPtr printStmt();
-    //   StmtPtr ifStmt();
-    //   StmtPtr whileStmt();
-    //   StmtPtr block();
-    //   StmtPtr exprStmt();
-    //
-    //   ExprPtr expression();
-    //   ExprPtr equality();
-    //   ExprPtr comparison();
-    //   ExprPtr term();
-    //   ExprPtr factor();
-    //   ExprPtr unary();
-    //   ExprPtr primary();
-    //
-    //   // helpers
-    //   const Token& peek() const;
-    //   const Token& previous() const;
-    //   bool isAtEnd() const;
-    //   bool check(TokenType t) const;
-    //   bool match(TokenType t);
-    //   const Token& consume(TokenType t, const char* msg);
+    // Statement rules
+    StmtPtr statement();
+    StmtPtr letStmt();
+    StmtPtr printStmt();
+    StmtPtr inputStmt();
+    StmtPtr ifStmt();
+    StmtPtr whileStmt();
+    StmtPtr blockStmt();
+    std::vector<StmtPtr> block();
+    StmtPtr exprOrAssignStmt();
+
+    // Expression rules (lowest -> highest precedence)
+    ExprPtr expression();
+    ExprPtr equality();
+    ExprPtr comparison();
+    ExprPtr term();
+    ExprPtr factor();
+    ExprPtr unary();
+    ExprPtr primary();
+
+    // Helpers
+    const Token& peek() const;
+    const Token& previous() const;
+    bool         isAtEnd() const;
+    bool         check(TokenType t) const;
+    bool         match(TokenType t);
+    const Token& consume(TokenType t, const char* msg);
+    const Token& advance();
 
     std::vector<Token> tokens_;
     std::size_t        pos_ = 0;

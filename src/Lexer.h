@@ -21,15 +21,16 @@ public:
     std::vector<Token> scanAll();
 
 private:
-    // TODO(lexer): private helpers
-    //   bool   isAtEnd() const;
-    //   char   advance();
-    //   char   peek() const;
-    //   bool   match(char expected);
-    //   void   scanToken(std::vector<Token>& out);
-    //   void   scanNumber(std::vector<Token>& out);
-    //   void   scanIdentifier(std::vector<Token>& out);
-    //   TokenType keywordOrIdent(const std::string& lexeme) const;
+    bool isAtEnd() const;
+    char advance();
+    char peek() const;
+    char peekNext() const;
+    bool match(char expected);
+
+    void skipWhitespaceAndComments();
+    void scanToken(std::vector<Token>& out);
+    void scanNumber(std::vector<Token>& out, std::size_t start);
+    void scanIdentifier(std::vector<Token>& out, std::size_t start);
 
     std::string source_;
     std::size_t pos_  = 0;
